@@ -4,95 +4,75 @@
 // but you don't so you're going to write it from scratch:
 
 var stringifyJSON = function(obj) { 
-	console.log("current obj is: ",obj);
-	if (Array.isArray(obj)){  //obj is an array
-	
-		
+  if (obj === undefined) return;  // undefined - DO NOT stringify 
+  if (typeof obj === "function") return;  //functions - DO NOT stringify
 
-	
-	} else if ((obj !== null) && (typeof obj === 'object')){  //obj is an object not null
+	if (Array.isArray(obj)){               //obj is an array
+     if (obj.length === 0){return "[]";} //empty erray
 
+     if (obj.length === 1){   //array of a single element
+        var text = "\[";
+        text += stringifyJSON(obj[0]);
+        text += "\]";
+        return text;
+     }
+		    
+    var text = "";
+    for (var i=0; i<obj.length; i++){
+      if (i===0) {   // the first element needs the open bracket
+        text +="\[";
+        text += stringifyJSON(obj[i]); //recursive call 
 
+      } else if (i===obj.length-1){    //the last element of the array
+        text += "\,";  // add a comma before this element
+        text += stringifyJSON(obj[i]); //recursive call
+        text += "\]";  //last elements needs a close bracket
+        return text;
+
+      } else {  
+          text +="\,"; //add a comma before this element
+          text += stringifyJSON(obj[i]);  //recursive
+      }
+
+    } 
+
+	   //end of array code
+	} else if ((obj !== null) && (typeof obj === 'object')){  
+            //obj is an object, but NOT a null
+    
+    if(jQuery.isEmptyObject(obj)){  //empty object
+      return "{}";  //empty object
+    }
+
+    var text = "\{";  // start string with "{"
+    var skipTheSlice = true;  //only slice stringable elements 
+    for (var member in obj){  //loop through all objects items
+      if ( (obj[member] === null) || ((obj[member] != undefined)  && (typeof obj[member] !="function"))  ){ 
+        skipTheSlice = false;
+        text += stringifyJSON(member);
+        text += "\:";
+        text += stringifyJSON(obj[member]);
+        text += "\,";
+      }
+    }
+
+    if (skipTheSlice === false) 
+      {text = text.slice(0,-1);}  // remove the last char of 
+                                  // the string...i.e. the extra comma (,) at the end
+    text += "\}";  // close the string with "}"
+    return text; 
+
+    // end of obj code
 	} else if (typeof obj === 'string'){  //obj is a string
 		var myString = "\"";  myString += obj;  myString += "\"";
-		//console.log ("...Return this string:", myString);
 		return myString;
 
 	} else { 
 		var text = "";
 		text += obj;
-		console.log(text);
 		return text;
 	}
-	// SOLA	right this algorithm on paper
-	// psuedo code it   
-	// THEN code it
-
-	// Don't forget, what is the base case, termination case and recursion
-
-  /* parameter "obj" will be either:
-  one value 
-  an array of values  (which may be other arrays)
-  an object that contains arrays or other objects
-  
-  // your code goes here
-  // Psuedocode
-
-  // go thru each element of the array and stringify it
-  // HOW???  
-
-  // check is it an array, object, null, a literal, etc
-	// if an array, then go through each element
-		// and add it to the string
-		/* example:  
-		//   var text ="";
-		//   for (var member in list) {
-        //	  text += list[member];
-		//   } 
+	
+};  // end of stringifyJSON function
 
 
-  	obj.forEach(function(objToStringify){
-	 
-
-   });
-  // 
-*/
-
-};
-
-
-/*
-var stringifiableObjects = [
-  9,
-  null,
-  true,
-  false,
-  "Hello world",
-  [],
-  [8],
-  ["hi"],
-  [8, "hi"],
-  [1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999],
-  [8, [[],3,4]],
-  [[[["foo"]]]],
-  {},
-  {"a": "apple"},
-  {"foo": true, "bar": false, "baz": null},
-  {"boolean, true": true, "boolean, false": false, "null": null },
-  // basic nesting
-  {"a":{"b":"c"}},
-  {"a":["b", "c"]},
-  [{"a":"b"}, {"c":"d"}],
-  {"a":[],"c": {}, "b": true}
-];
-
-// used for stringifyJSON spec
-// hint: JSON does not allow you to stringify functions or
-// undefined values, so you should skip those key/value pairs.
-unstringifiableValues = [
-  {
-    'functions': function(){},
-    'undefined': undefined
-  }
-];
- */
